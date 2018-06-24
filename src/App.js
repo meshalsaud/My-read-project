@@ -79,7 +79,7 @@ class BooksApp extends Component {
       )}
       />
       {/*here we will use searchBook component and we need books and changeShelf as props*/}
-      <Route path='/search' render={()=>(
+      <Route path='/search' render={({history})=>(
         <SearchBook
 
        books={this.state.books}

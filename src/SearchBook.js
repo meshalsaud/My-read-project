@@ -2,18 +2,19 @@ import React, {Component} from 'react'
 import {Link} from 'react-router-dom'
 import './App.css'
 import PropTypes from 'prop-types'
-import sortBy from 'sort-by'
 import * as BooksAPI from './BooksAPI'
 import BookShelfChanger from './BookShelfChanger'
+import { Debounce } from 'react-throttle';
 //here we create component for search part
 class SearchBook extends Component{
+  
   static propTypes={
     books:PropTypes.array.isRequired,
     changeShelf:PropTypes.func.isRequired
   }
  
   state={
-    query:'',
+    query:"",
     searchBook:[]
   }
   /* this updateQuery function will take query value and use search function in BooksAPI 
@@ -22,19 +23,24 @@ class SearchBook extends Component{
       if query is empty searchBook will be empty array
   */
   updateQuery=(query)=>{
-    this.setState({query:query.trim()})
+    this.setState({query:query})
     if(query){
-      BooksAPI.search(query,30).then((books)=>{
+      BooksAPI.search(query.trim(),5).then((books)=>{
         if(books.length){
           books.forEach((book,index)=>{
-            let matchBook=this.props.books.find((b)=>b.id===book.id);
+                        let matchBook=this.props.books.find((b)=>b.id===book.id);
             book.shelf=matchBook? matchBook.shelf:'none';
             books[index]=book;
+
           });
         this.setState({
           searchBook:books
         })
       }
+      else{
+        this.setState({searchBook:[]}) 
+      }
+
       
     });
     }
@@ -43,7 +49,7 @@ class SearchBook extends Component{
     }
       
   }
-  compentWillUnmount(){
+  componenttWillUnmount(){
     this.updateQuery('')
   }
 
@@ -57,12 +63,14 @@ class SearchBook extends Component{
             <div className="search-books-bar">
               <Link className="close-search" to='/'>Close</Link>
               <div className="search-books-input-wrapper">
-              
-                <input type="text" 
-                placeholder="Search by title or author" 
-                value={this.state.query} 
+                <Debounce time="400" handler="onChange">
+                <input
+                type="text" 
+                placeholder="Search by title or author"  
                 onChange={(event)=>this.updateQuery(event.target.value)} 
                 />
+                </Debounce>
+                
 
               </div>
             </div>
