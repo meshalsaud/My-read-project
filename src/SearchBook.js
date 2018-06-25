@@ -4,6 +4,7 @@ import './App.css'
 import PropTypes from 'prop-types'
 import * as BooksAPI from './BooksAPI'
 import BookShelfChanger from './BookShelfChanger'
+import ResultSearch from './ResultSearch'
 import { Debounce } from 'react-throttle';
 //here we create component for search part
 class SearchBook extends Component{
@@ -26,19 +27,22 @@ class SearchBook extends Component{
     this.setState({query:query})
     if(query){
       BooksAPI.search(query.trim(),5).then((books)=>{
+        
         if(books.length){
           books.forEach((book,index)=>{
-                        let matchBook=this.props.books.find((b)=>b.id===book.id);
-            book.shelf=matchBook? matchBook.shelf:'none';
-            books[index]=book;
 
+          let matchBook=this.props.books.find((b)=>b.id===book.id);
+          book.shelf=matchBook? matchBook.shelf:'none';
+          books[index]=book;
+
+          
           });
         this.setState({
           searchBook:books
         })
       }
       else{
-        this.setState({searchBook:[]}) 
+        this.setState({searchBook:[]}); 
       }
 
       
@@ -49,6 +53,7 @@ class SearchBook extends Component{
     }
       
   }
+  
   componenttWillUnmount(){
     this.updateQuery('')
   }
@@ -57,7 +62,6 @@ class SearchBook extends Component{
 
     
   render(){
-        
     return (
       <div className="search-books">
             <div className="search-books-bar">
@@ -76,24 +80,13 @@ class SearchBook extends Component{
             </div>
             <div className="search-books-results">
               <ol className='books-grid' >
+
                    {/* map over searchBook and render books */} 
                   {this.state.searchBook.map((book)=>(
                     <li key={book.id} className='contact-list-item'>
-                      <div className="book">
-                        <div className="book-top">
-                            <div className="book-cover" style={{ width: 128, height: 193, 
-                            backgroundImage: `url(${book.imageLinks.thumbnail})`}}>
-                            </div>
-                          {/* we will use bookShlefChanger from component */}
-                          <BookShelfChanger book={book} changeShelf={this.props.changeShelf}/> 
-                        </div>
-
-                          
-                          <div className="book-title">{book.title}</div>
-                          <div className="book-authors">{book.authors}</div>
-                      </div>
-                      </li>
-                    ))}
+                      <ResultSearch book={book} changeShelf={this.props.changeShelf} />
+                    </li>
+                  ))}
                 
                   </ol>
                
